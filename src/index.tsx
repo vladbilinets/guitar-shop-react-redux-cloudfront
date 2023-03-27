@@ -1,4 +1,5 @@
 import React from "react";
+import axios, { AxiosError } from "axios";
 import { createRoot } from "react-dom/client";
 import App from "~/components/App/App";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -7,6 +8,23 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { theme } from "~/theme";
+
+// add auth token
+const authToken = localStorage.getItem("authorization_token");
+if (authToken) {
+  axios.defaults.headers.common["Authorization"] = `Basic ${authToken}`;
+}
+
+// alert failed requests
+axios.interceptors.response.use(
+  (successResponse) => successResponse,
+  (error: AxiosError) => {
+    if (!error.response || error.response.status >= 400) {
+      alert(error.message);
+    }
+    return Promise.reject(error);
+  }
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
